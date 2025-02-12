@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table with Filter and Tree View</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+        }
+        #tree {
+            width: 200px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        #table-container {
+            flex-grow: 1;
+            margin-left: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .tree ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .tree li {
+            cursor: pointer;
+            padding: 5px 0;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Tree View Section -->
+    <div id="tree" class="tree">
+        <h3>Categories</h3>
+        <ul>
+            <li onclick="filterTable('Electronics')">Electronics
+                <ul class="hidden">
+                    <li onclick="filterTable('Mobile')">Mobile</li>
+                    <li onclick="filterTable('Laptop')">Laptop</li>
+                </ul>
+            </li>
+            <li onclick="filterTable('Clothing')">Clothing
+                <ul class="hidden">
+                    <li onclick="filterTable('Shirt')">Shirt</li>
+                    <li onclick="filterTable('Pants')">Pants</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Table Section -->
+    <div id="table-container">
+        <h3>Product List</h3>
+        <input type="text" id="search" placeholder="Filter table..." onkeyup="filterTableInput()">
+        <table id="productTable">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="Electronics Mobile">
+                    <td>iPhone 13</td>
+                    <td>Mobile</td>
+                    <td>$799</td>
+                </tr>
+                <tr class="Electronics Laptop">
+                    <td>MacBook Pro</td>
+                    <td>Laptop</td>
+                    <td>$1299</td>
+                </tr>
+                <tr class="Clothing Shirt">
+                    <td>Graphic T-shirt</td>
+                    <td>Shirt</td>
+                    <td>$29</td>
+                </tr>
+                <tr class="Clothing Pants">
+                    <td>Jeans</td>
+                    <td>Pants</td>
+                    <td>$49</td>
+                </tr>
+                <tr class="Electronics Mobile">
+                    <td>Samsung Galaxy S21</td>
+                    <td>Mobile</td>
+                    <td>$799</td>
+                </tr>
+                <tr class="Clothing Pants">
+                    <td>Chinos</td>
+                    <td>Pants</td>
+                    <td>$39</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Handle the tree view toggle functionality
+        document.querySelectorAll('#tree li').forEach(item => {
+            item.addEventListener('click', function(event) {
+                event.stopPropagation();
+                const childUl = this.querySelector('ul');
+                if (childUl) {
+                    childUl.classList.toggle('hidden');
+                }
+            });
+        });
+
+        // Filter table rows by category from tree view
+        function filterTable(category) {
+            const rows = document.querySelectorAll('#productTable tbody tr');
+            rows.forEach(row => {
+                if (row.classList.contains(category) || category === '') {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Filter table by input text
+        function filterTableInput() {
+            const filter = document.getElementById('search').value.toUpperCase();
+            const rows = document.querySelectorAll('#productTable tbody tr');
+            rows.forEach(row => {
+                const productCell = row.cells[0].textContent;
+                const categoryCell = row.cells[1].textContent;
+                if (productCell.toUpperCase().includes(filter) || categoryCell.toUpperCase().includes(filter)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

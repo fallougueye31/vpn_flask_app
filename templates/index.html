@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>AWS VPN Clients</title>
+    <script>
+        async function fetchClients() {
+            const response = await fetch('/api/clients');
+            const data = await response.json();
+            const filterValue = document.getElementById('filterInput').value.toLowerCase();
+            const table = document.getElementById('clientsTable');
+            table.innerHTML = '<tr><th>Username</th><th>IP</th><th>Connection ID</th><th>Status</th><th>Timestamp</th></tr>';
+            data.forEach(client => {
+                if (client.username.toLowerCase().includes(filterValue) || client.ip.includes(filterValue)) {
+                    table.innerHTML += `<tr><td>${client.username}</td><td>${client.ip}</td><td>${client.connection_id}</td><td>${client.status}</td><td>${client.timestamp}</td></tr>`;
+                }
+            });
+        }
+        setInterval(fetchClients, 50000);
+        window.onload = fetchClients;
+    </script>
+
+    <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f9;
+                padding: 20px;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+            table, th, td {
+                border: 1px solid #ccc;
+            }
+            th, td {
+                padding: 12px;
+                text-align: left;
+            }
+            th {
+                background-color: #4CAF50;
+                color: white;
+            }
+            tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+        </style>
+</head>
+<body>
+<h1>AWS VPN Connected Clients</h1>
+<input type='text' id='filterInput' placeholder='Filter by username or IP' onkeyup='fetchClients()'>
+<table border='1' id='clientsTable'>
+    <tr>
+        <th>Username</th>
+        <th>IP</th>
+        <th>Connection ID</th>
+        <th>Status</th>
+        <th>Timestamp</th>
+    </tr>
+</table>
+</body>
+</html>
