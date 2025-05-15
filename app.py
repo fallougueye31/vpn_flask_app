@@ -1,4 +1,4 @@
-import os
+
 
 from flask import Flask, jsonify, render_template
 import boto3
@@ -6,9 +6,9 @@ import boto3
 app = Flask(__name__)
 
 # AWS Client VPN Endpoint ID (Replace with your actual VPN endpoint ID)
-VPN_ENDPOINT_ID = "cvpn-endpoint-0bf1fc6b5b199012d"
+VPN_ENDPOINT_ID = "cvpn-endpoint-03d9341e5e564f24c"
 AWS_REGION = "eu-central-1"
-os.environ['AWS_PROFILE'] = "d2hub-dev"
+
 
 # Initialize Boto3 client
 client = boto3.client("ec2", region_name=AWS_REGION)
@@ -44,4 +44,5 @@ def api_clients():
 
 
 if __name__ == "__main__":
+   
     app.run(host="0.0.0.0", port=5000, debug=True)
