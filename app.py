@@ -1,6 +1,7 @@
 
 
 from flask import Flask, jsonify, render_template
+from datetime import datetime, timedelta
 import boto3
 
 app = Flask(__name__)
@@ -12,6 +13,7 @@ AWS_REGION = "eu-central-1"
 
 # Initialize Boto3 client
 client = boto3.client("ec2", region_name=AWS_REGION)
+cloudwatch = boto3.client('cloudwatch', region_name=AWS_REGION)
 
 
 def get_connected_clients():
@@ -24,7 +26,9 @@ def get_connected_clients():
                 "connection_id": conn.get("ConnectionId"),
                 "status": conn.get("Status", {}).get("Code"),
                 "ip": conn.get("ClientIp"),
-                "timestamp": conn.get("ConnectionEstablishedTime")
+                "timestamp": conn.get("ConnectionEstablishedTime"),
+                "ingress_data": conn.get("IngressBytes"),
+                "egress_data":conn.get("EgressBytes")
             }
             for conn in connections if conn.get("Status", {}).get("Code") == "active"
         ]
@@ -32,7 +36,6 @@ def get_connected_clients():
     except Exception as e:
         print(f"Error fetching VPN connections: {e}")
         return []
-
 
 @app.route("/")
 def index():
@@ -44,5 +47,4 @@ def api_clients():
 
 
 if __name__ == "__main__":
-   
     app.run(host="0.0.0.0", port=5000, debug=True)
