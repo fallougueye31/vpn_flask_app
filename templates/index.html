@@ -10,7 +10,7 @@
             const data = await response.json();
             const filterValue = document.getElementById('filterInput').value.toLowerCase();
             const table = document.getElementById('clientsTable');
-            table.innerHTML = '<tr><th>Username</th><th>IP</th><th>Connection ID</th><th>Status</th><th>Timestamp</th><th>Ingress Data</th><th>Egress Data</th></tr>';
+            table.innerHTML = '<tr><th>Username</th><th>IP</th><th>Connection ID</th><th>Status</th><th>Connection Start Time</th><th>Ingress Data(bytes)</th><th>Egress Data(bytes)</th></tr>';
             data.forEach(client => {
                 if (client.username.toLowerCase().includes(filterValue) || client.ip.includes(filterValue)) {
                     table.innerHTML += `<tr><td>${client.username}</td><td>${client.ip}</td><td>${client.connection_id}</td><td>${client.status}</td><td>${client.timestamp}</td><td>${client.ingress_data}</td><td>${client.egress_data}</td></tr>`;
