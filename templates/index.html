@@ -4,22 +4,45 @@
     <meta charset='UTF-8'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
     <title>AWS VPN Clients</title>
-    <script>
-        async function fetchClients() {
-            const response = await fetch('/api/clients');
-            const data = await response.json();
-            const filterValue = document.getElementById('filterInput').value.toLowerCase();
-            const table = document.getElementById('clientsTable');
-            table.innerHTML = '<tr><th>Username</th><th>IP</th><th>Connection ID</th><th>Status</th><th>Connection Start Time</th><th>Ingress Data(bytes)</th><th>Egress Data(bytes)</th></tr>';
-            data.forEach(client => {
-                if (client.username.toLowerCase().includes(filterValue) || client.ip.includes(filterValue)) {
-                    table.innerHTML += `<tr><td>${client.username}</td><td>${client.ip}</td><td>${client.connection_id}</td><td>${client.status}</td><td>${client.timestamp}</td><td>${client.ingress_data}</td><td>${client.egress_data}</td></tr>`;
-                }
-            });
-        }
-        setInterval(fetchClients, 50000);
-        window.onload = fetchClients;
-    </script>
+<script>
+    async function fetchClients() {
+        const response = await fetch('/api/clients');
+        const data = await response.json();
+
+        const filterValue = document.getElementById('filterInput').value.toLowerCase();
+        const tbody = document.getElementById('clientsBody');
+        tbody.innerHTML = '';
+
+        data.forEach(client => {
+            if (
+                client.username.toLowerCase().includes(filterValue) ||
+                client.ip.includes(filterValue)
+            ) {
+                const row = document.createElement('tr');
+                [
+                    client.username,
+                    client.ip,
+                    client.connection_id,
+                    client.status,
+                    client.timestamp,
+                    client.ingress_data,
+                    client.egress_data
+                ].forEach(value => {
+                    const cell = document.createElement('td');
+                    cell.textContent = value;
+                    row.appendChild(cell);
+                });
+                tbody.appendChild(row);
+            }
+        });
+    }
+
+
+    window.onload = fetchClients;
+    setInterval(fetchClients, 50000);
+    document.getElementById('filterInput').addEventListener('input', fetchClients);
+
+</script>
 
     <style>
             body {
@@ -50,17 +73,20 @@
 </head>
 <body>
 <h1>AWS VPN Connected Clients</h1>
-<input type='text' id='filterInput' placeholder='Filter by username or IP' onkeyup='fetchClients()'>
-<table border='1' id='clientsTable'>
-    <tr>
-        <th>Username</th>
-        <th>IP</th>
-        <th>Connection ID</th>
-        <th>Status</th>
-        <th>Connection Start Time</th>
-        <th>Ingress Data(bytes)</th>
-        <th>Egress Data(bytes)</th>
-    </tr>
+<input type="text" id="filterInput" placeholder="Filtrer par nom ou IP" onkeyup='fetchClients()'>
+<table id="clientsTable" border="1">
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>IP</th>
+            <th>Connection ID</th>
+            <th>Status</th>
+            <th>Connection Start Time</th>
+            <th>Ingress Data (bytes)</th>
+            <th>Egress Data (bytes)</th>
+        </tr>
+    </thead>
+    <tbody id="clientsBody"></tbody>
 </table>
 </body>
 </html>

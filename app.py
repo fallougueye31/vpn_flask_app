@@ -1,5 +1,4 @@
 
-
 from flask import Flask, jsonify, render_template
 from datetime import datetime, timedelta
 import boto3
@@ -7,9 +6,8 @@ import boto3
 app = Flask(__name__)
 
 # AWS Client VPN Endpoint ID (Replace with your actual VPN endpoint ID)
-VPN_ENDPOINT_ID = "cvpn-endpoint-03d9341e5e564f24c"
+VPN_ENDPOINT_ID = "cvpn-endpoint-00701398d9c3b7ce7"
 AWS_REGION = "eu-central-1"
-
 
 # Initialize Boto3 client
 client = boto3.client("ec2", region_name=AWS_REGION)
@@ -28,7 +26,7 @@ def get_connected_clients():
                 "ip": conn.get("ClientIp"),
                 "timestamp": conn.get("ConnectionEstablishedTime"),
                 "ingress_data": conn.get("IngressBytes"),
-                "egress_data":conn.get("EgressBytes")
+                "egress_data" :conn.get("EgressBytes")
             }
             for conn in connections if conn.get("Status", {}).get("Code") == "active"
         ]
