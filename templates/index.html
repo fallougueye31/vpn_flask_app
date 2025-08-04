@@ -1,92 +1,168 @@
 <!DOCTYPE html>
-<html lang='en'>
+<html lang="en">
 <head>
-    <meta charset='UTF-8'>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <title>AWS VPN Clients</title>
-<script>
-    async function fetchClients() {
-        const response = await fetch('/api/clients');
-        const data = await response.json();
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AWS VPN Clients</title>
 
-        const filterValue = document.getElementById('filterInput').value.toLowerCase();
-        const tbody = document.getElementById('clientsBody');
-        tbody.innerHTML = '';
-
-        data.forEach(client => {
-            if (
-                client.username.toLowerCase().includes(filterValue) ||
-                client.ip.includes(filterValue)
-            ) {
-                const row = document.createElement('tr');
-                [
-                    client.username,
-                    client.ip,
-                    client.connection_id,
-                    client.status,
-                    client.timestamp,
-                    client.ingress_data,
-                    client.egress_data
-                ].forEach(value => {
-                    const cell = document.createElement('td');
-                    cell.textContent = value;
-                    row.appendChild(cell);
-                });
-                tbody.appendChild(row);
-            }
-        });
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      padding: 20px;
     }
+    h1 {
+      margin-bottom: 10px;
+    }
+    #controls {
+      margin-bottom: 20px;
+    }
+    input, select {
+      padding: 8px;
+      margin-right: 10px;
+      font-size: 1rem;
+    }
+    details {
+      margin-bottom: 10px;
+      background: white;
+      border-radius: 5px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      padding: 10px;
+    }
+    summary {
+      font-weight: bold;
+      cursor: pointer;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+  </style>
 
-
-    window.onload = fetchClients;
-    setInterval(fetchClients, 50000);
-    document.getElementById('filterInput').addEventListener('input', fetchClients);
-
-</script>
-
-    <style>
-            body {
-                font-family: Arial, sans-serif;
-                background-color: #f4f4f9;
-                padding: 20px;
-            }
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 20px;
-            }
-            table, th, td {
-                border: 1px solid #ccc;
-            }
-            th, td {
-                padding: 12px;
-                text-align: left;
-            }
-            th {
-                background-color: #4CAF50;
-                color: white;
-            }
-            tr:nth-child(even) {
-                background-color: #f2f2f2;
-            }
-        </style>
 </head>
 <body>
+
 <h1>AWS VPN Connected Clients</h1>
-<input type="text" id="filterInput" placeholder="Filtrer par nom ou IP" onkeyup='fetchClients()'>
-<table id="clientsTable" border="1">
-    <thead>
+
+<div id="controls">
+  <input type="text" id="filterInput" placeholder="Filter by username, IP, or time" />
+  <select id="statusFilter">
+    <option value="">All Statuses</option>
+    <option value="active">Active</option>
+    <option value="terminated">Terminated</option>
+  </select>
+</div>
+
+<div id="clientsContainer">Loading...</div>
+
+<script>
+    let clientsData = [];
+
+  async function fetchClients() {
+    // Simulated mock data
+    const response = await fetch('/api/clients');
+    clientsData = await response.json();
+
+    renderClients(); // use the same render function
+  }
+
+  function renderClients() {
+    const filterValue = document.getElementById('filterInput').value.toLowerCase();
+    const statusFilter = document.getElementById('statusFilter').value.toLowerCase();
+    const container = document.getElementById('clientsContainer');
+    container.innerHTML = '';
+
+    // Group by status
+    const grouped = {};
+    clientsData.forEach(client => {
+      const status = client.status.toLowerCase();
+      if (!grouped[status]) grouped[status] = [];
+      grouped[status].push(client);
+    });
+
+    Object.keys(grouped).forEach(status => {
+      if (statusFilter && status !== statusFilter) return;
+
+      const clients = grouped[status].filter(client => {
+        return (
+          client.username.toLowerCase().includes(filterValue) ||
+          client.ip.includes(filterValue) ||
+          client.timestamp.toLowerCase().includes(filterValue) ||
+          client.status.toLowerCase().includes(filterValue)
+        );
+      });
+
+      if (clients.length === 0) return;
+
+      const details = document.createElement('details');
+      details.open = true;
+
+      const summary = document.createElement('summary');
+      summary.textContent = `Status: ${status.toUpperCase()} (${clients.length})`;
+      details.appendChild(summary);
+
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      thead.innerHTML = `
         <tr>
-            <th>Username</th>
-            <th>IP</th>
-            <th>Connection ID</th>
-            <th>Status</th>
-            <th>Connection Start Time</th>
-            <th>Ingress Data (bytes)</th>
-            <th>Egress Data (bytes)</th>
-        </tr>
-    </thead>
-    <tbody id="clientsBody"></tbody>
-</table>
+          <th>Username</th>
+          <th>IP</th>
+          <th>Connection ID</th>
+          <th>Status</th>
+          <th>Connection Start Time</th>
+          <th>Connection End Time</th>
+          <th>Ingress Data (bytes)</th>
+          <th>Egress Data (bytes)</th>
+        </tr>`;
+      table.appendChild(thead);
+
+      const tbody = document.createElement('tbody');
+      clients.forEach(client => {
+        const row = document.createElement('tr');
+        [
+          client.username,
+          client.ip,
+          client.connection_id,
+          client.status,
+          client.timestamp,
+          client.end_time,
+          client.ingress_data,
+          client.egress_data
+        ].forEach(value => {
+          const td = document.createElement('td');
+          td.textContent = value;
+          row.appendChild(td);
+        });
+        tbody.appendChild(row);
+      });
+
+      table.appendChild(tbody);
+      details.appendChild(table);
+      container.appendChild(details);
+    });
+  }
+
+  // Event listeners
+  document.getElementById('filterInput').addEventListener('input', renderClients);
+  document.getElementById('statusFilter').addEventListener('change', renderClients);
+
+  // Initial load
+  window.onload = fetchClients;
+  //setInterval(fetchClients, 50000);
+</script>
+
 </body>
 </html>
