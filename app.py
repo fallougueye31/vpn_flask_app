@@ -1,13 +1,17 @@
+import os
 from time import sleep
 
 from flask import Flask, jsonify, render_template
 from datetime import datetime, timedelta, timezone
 import boto3
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 
 # AWS Client VPN Endpoint ID (Replace with your actual VPN endpoint ID)
-VPN_ENDPOINT_ID = "cvpn-endpoint-080072d9d9e89e6e0"
+VPN_ENDPOINT_ID = os.getenv("VPN_ENDPOINT_ID")
 AWS_REGION = "eu-central-1"
 
 # Initialize Boto3 client
