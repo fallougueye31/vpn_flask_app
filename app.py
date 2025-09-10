@@ -7,7 +7,7 @@ import boto3
 app = Flask(__name__)
 
 # AWS Client VPN Endpoint ID (Replace with your actual VPN endpoint ID)
-VPN_ENDPOINT_ID = "cvpn-endpoint-00701398d9c3b7ce7"
+VPN_ENDPOINT_ID = "cvpn-endpoint-080072d9d9e89e6e0"
 AWS_REGION = "eu-central-1"
 
 # Initialize Boto3 client
